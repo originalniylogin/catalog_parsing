@@ -3,13 +3,7 @@ const       _ = require('lodash');
 const      fs = require('fs');
 
 const catalogURL = 'https://agrocat.ru/catalog/';
-const knownBrands = [
-  {name: 'Claas', id: 1},
-  {name: 'John Deere', id: 2},
-  {name: 'Fendt', id: 5},
-  {name: 'AMAZONE', id: 17},
-  {name: 'LEMKEN', id: 19},
-];
+const knownBrands = JSON.parse(fs.readFileSync('brands.json'));
 
 let matchedBrands = [];
 
@@ -21,7 +15,7 @@ osmosis
     href: '@href'
   })
   .data(brand => {
-    knownBrand = _.find(knownBrands, knownBrand => knownBrand.name == brand.title)
+    knownBrand = _.find(knownBrands, knownBrand => _.toLower(knownBrand.name) == _.toLower(brand.title))
     if (knownBrand)
       matchedBrands.push(_.merge(knownBrand, {href: brand.href}));
   })
@@ -41,7 +35,8 @@ osmosis
               detailsMachineryBrandsAttributes: [
                 {
                   machineryBrandId: brand.id,
-                  isOriginal: true
+                  originality: 0,
+                  manufacturer: brand.title
                 }
               ]
             }));
