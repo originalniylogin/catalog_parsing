@@ -11,5 +11,9 @@
   "dependencies": {
     "lodash": "^4.17.10",
     "osmosis": "^1.1.6"
+  },
+  "devDependencies": {
+    "axios": "^0.18.0",
+    "cheerio": "^1.0.0-rc.2"
   }
 }
