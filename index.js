@@ -31,13 +31,12 @@ axios.get(catalogsURL)
         count: 0
       })
     ).get();
-    
+
     brands.forEach(async brand => {
       fs.existsSync(`catalogs/${brand.data.title}`) || fs.mkdirSync(`catalogs/${brand.data.title}`);
-      
+
       let page = 1;
       while (true) {
-        if (brand.data.title != 'Шины') break;
         const parts = await scrapPage(brand.data, page);
         if (parts == undefined)
           break;
@@ -73,9 +72,12 @@ async function scrapPage(brand, page) {
       const parts = brandPage('.shop-item').map((i, row) => {
         const catalogNumber = brandPage(brandPage(row).find('td').get(0)).text();
         const name = brandPage(brandPage(row).find('td').get(1)).text();
+        const priceStr = brandPage(brandPage(row).find('td').get(2)).text();
+        const prices = parsePrices(priceStr);
         const part = {
           catalog_number: catalogNumber,
-          name: name
+          name: name,
+          prices: prices
         };
 
         return _.includes(_.values(part), '') ? null : part;
@@ -86,4 +88,11 @@ async function scrapPage(brand, page) {
     .catch(error => {
       console.log(error);
     });
+}
+
+function parsePrices(priceStr) {
+  const prices = priceStr.match(/\d+[\d ]*.[\d ]*\d+/g);
+  return prices ?
+    prices.filter(price => price.length > 0).map(price => parseFloat(price.replace(/\s+/g, ''))) :
+    []
 }
